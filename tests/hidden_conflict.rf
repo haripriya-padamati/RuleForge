@@ -1,0 +1,12 @@
+# Hidden conflict: Manager inherits the Deny from Employee.
+# No single line mentions both rules for Manager, so it is easy to miss.
+role Employee;
+role Manager : Employee;
+
+resource Salary_Records;
+resource Salary_History;
+
+action read;
+
+Deny Employee to read Salary_Records;
+Allow Manager to read Salary_*;

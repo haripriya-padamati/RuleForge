@@ -1,0 +1,135 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Employee
+2:14     SEMI       ;
+3:1      ROLE       role
+3:6      IDENT      Manager
+3:14     COLON      :
+3:16     IDENT      Employee
+3:24     SEMI       ;
+4:1      ROLE       role
+4:6      IDENT      Intern
+4:13     COLON      :
+4:15     IDENT      Employee
+4:23     SEMI       ;
+6:1      RESOURCE   resource
+6:10     IDENT      Salary_Records
+6:24     SEMI       ;
+7:1      RESOURCE   resource
+7:10     IDENT      Salary_History
+7:24     SEMI       ;
+8:1      RESOURCE   resource
+8:10     IDENT      Public_Notice
+8:23     SEMI       ;
+10:1     ACTION     action
+10:8     IDENT      read
+10:12    SEMI       ;
+11:1     ACTION     action
+11:8     IDENT      write
+11:13    SEMI       ;
+13:1     ALLOW      Allow
+13:7     IDENT      Employee
+13:16    TO         to
+13:19    IDENT      read
+13:24    IDENT      Public_Notice
+13:37    SEMI       ;
+14:1     ALLOW      Allow
+14:7     IDENT      Manager
+14:15    TO         to
+14:18    IDENT      read
+14:23    IDENT      Salary_
+14:30    STAR       *
+14:31    SEMI       ;
+15:1     DENY       Deny
+15:6     IDENT      Intern
+15:13    TO         to
+15:16    IDENT      read
+15:21    IDENT      Salary_
+15:28    STAR       *
+15:29    SEMI       ;
+17:1     ASSERT     assert
+17:8     IDENT      Intern
+17:15    CANNOT     cannot
+17:22    IDENT      read
+17:27    IDENT      Salary_
+17:34    STAR       *
+17:35    SEMI       ;
+18:1     ASSERT     assert
+18:8     IDENT      Manager
+18:16    CAN        can
+18:20    IDENT      read
+18:25    IDENT      Salary_History
+18:39    SEMI       ;
+19:1     ASSERT     assert
+19:8     EVERY      every
+19:14    ROLE       role
+19:19    CAN        can
+19:23    IDENT      read
+19:28    IDENT      Public_Notice
+19:41    SEMI       ;
+20:1     ASSERT     assert
+20:8     NO         no
+20:11    ROLE       role
+20:16    CAN        can
+20:20    IDENT      write
+20:26    STAR       *
+20:27    SEMI       ;
+21:1     EOF        <eof>
+Program (15 items)
+  RoleDecl     Employee   (line 2)
+  RoleDecl     Manager : Employee   (line 3)
+  RoleDecl     Intern : Employee   (line 4)
+  ResourceDecl Salary_Records   (line 6)
+  ResourceDecl Salary_History   (line 7)
+  ResourceDecl Public_Notice   (line 8)
+  ActionDecl   read   (line 10)
+  ActionDecl   write   (line 11)
+  AllowRule    #1: Employee -> read on Public_Notice   (line 13)
+  AllowRule    #2: Manager -> read on Salary_*   (line 14)
+  DenyRule     #3: Intern -> read on Salary_*   (line 15)
+  Assertion    A1: Intern cannot read Salary_*   (line 17)
+  Assertion    A2: Manager can read Salary_History   (line 18)
+  Assertion    A3: every role can read Public_Notice   (line 19)
+  Assertion    A4: no role can write *   (line 20)
+Symbol table
+  Roles (3)
+     0  Employee                     ancestors: Employee
+     1  Manager : Employee           ancestors: Manager, Employee
+     2  Intern : Employee            ancestors: Intern, Employee
+  Resources (3)
+     0  Salary_Records
+     1  Salary_History
+     2  Public_Notice
+  Actions (2)
+     0  read
+     1  write
+Resolved rules (3)
+  #1  ALLOW role=Employee(0) action=read(0) resources=[Public_Notice(2)]
+  #2  ALLOW role=Manager(1) action=read(0) resources=[Salary_Records(0), Salary_History(1)]
+  #3  DENY  role=Intern(2) action=read(0) resources=[Salary_Records(0), Salary_History(1)]
+Assertions (4)
+  A1  Intern cannot read Salary_*  -> checks Intern x 2 resource(s)
+  A2  Manager can read Salary_History  -> checks Manager x 1 resource(s)
+  A3  every role can read Public_Notice  -> checks all roles x 1 resource(s)
+  A4  no role can write *  -> checks all roles x 3 resource(s)
+Conflicts
+  none: no combination has both an Allow and a Deny rule
+Decision table (3 roles x 3 resources x 2 actions = 18 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role      Action  Salary_Records  Salary_History  Public_Notice
+  Employee  read    deny -          deny -          ALLOW #1
+            write   deny -          deny -          deny -
+  Manager   read    ALLOW #2        ALLOW #2        ALLOW #1
+            write   deny -          deny -          deny -
+  Intern    read    DENY #3         DENY #3         ALLOW #1
+            write   deny -          deny -          deny -
+Security assertions (4)
+  PROVED  A1 (line 17): Intern cannot read Salary_*   [all 2 case(s) checked]
+  PROVED  A2 (line 18): Manager can read Salary_History   [all 1 case(s) checked]
+  PROVED  A3 (line 19): every role can read Public_Notice   [all 3 case(s) checked]
+  PROVED  A4 (line 20): no role can write *   [all 9 case(s) checked]
+  4 proved, 0 failed
+LLVM IR written to tests/out/assertions_ok.ll
+--- stderr ---

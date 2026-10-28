@@ -1,0 +1,16 @@
+# Wildcards: "*" = every resource, "Report_*" = every resource starting with Report_.
+role Auditor;
+role Admin;
+
+resource Report_Sales;
+resource Report_Finance;
+resource Server_Logs;
+
+action read;
+action delete;
+
+Allow Auditor to read Report_*;
+Allow Admin to read *;
+Allow Admin to delete *;
+Deny Admin to delete Report_*;
+Allow Auditor to read Backup_*;    # matches nothing -> warning, no effect

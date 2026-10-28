@@ -1,0 +1,13 @@
+# Clean rules: no conflicts expected
+role Employee;
+role Manager : Employee;
+
+resource Salary_Records;
+resource Leave_Records;
+
+action read;
+action write;
+
+Allow Employee to read Leave_Records;
+Allow Manager to read Salary_Records;
+Deny Employee to write Salary_Records;

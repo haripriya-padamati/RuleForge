@@ -1,0 +1,73 @@
+exit code: 1
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Employee
+2:14     SEMI       ;
+3:1      ROLE       role
+3:6      IDENT      Manager
+3:14     COLON      :
+3:16     IDENT      Employe
+3:23     SEMI       ;
+4:1      ROLE       role
+4:6      IDENT      Employee
+4:14     SEMI       ;
+5:1      ROLE       role
+5:6      IDENT      A
+5:8      COLON      :
+5:10     IDENT      B
+5:11     SEMI       ;
+6:1      ROLE       role
+6:6      IDENT      B
+6:8      COLON      :
+6:10     IDENT      A
+6:11     SEMI       ;
+8:1      RESOURCE   resource
+8:10     IDENT      Salary_Records
+8:24     SEMI       ;
+9:1      ACTION     action
+9:8      IDENT      read
+9:12     SEMI       ;
+10:1     ACTION     action
+10:8     IDENT      read
+10:12    SEMI       ;
+12:1     ALLOW      Allow
+12:7     IDENT      Manager
+12:15    TO         to
+12:18    IDENT      read
+12:23    IDENT      Salry_Records
+12:36    SEMI       ;
+13:1     DENY       Deny
+13:6     IDENT      Contractor
+13:17    TO         to
+13:20    IDENT      read
+13:25    IDENT      Salary_Records
+13:39    SEMI       ;
+14:1     ALLOW      Allow
+14:7     IDENT      Employee
+14:16    TO         to
+14:19    IDENT      delete
+14:26    IDENT      Salary_Records
+14:40    SEMI       ;
+15:1     EOF        <eof>
+Program (11 items)
+  RoleDecl     Employee   (line 2)
+  RoleDecl     Manager : Employe   (line 3)
+  RoleDecl     Employee   (line 4)
+  RoleDecl     A : B   (line 5)
+  RoleDecl     B : A   (line 6)
+  ResourceDecl Salary_Records   (line 8)
+  ActionDecl   read   (line 9)
+  ActionDecl   read   (line 10)
+  AllowRule    #1: Manager -> read on Salry_Records   (line 12)
+  DenyRule     #2: Contractor -> read on Salary_Records   (line 13)
+  AllowRule    #3: Employee -> delete on Salary_Records   (line 14)
+--- stderr ---
+tests/step4_errors.rf:4:1: error: role 'Employee' is already declared on line 2
+tests/step4_errors.rf:10:1: error: action 'read' is already declared on line 9
+tests/step4_errors.rf:3:1: error: parent role 'Employe' of 'Manager' is not declared (did you mean 'Employee'?)
+tests/step4_errors.rf:5:1: error: role inheritance cycle: A -> B -> A
+tests/step4_errors.rf:12:1: error: rule #1 uses undeclared resource 'Salry_Records' (did you mean 'Salary_Records'?)
+tests/step4_errors.rf:13:1: error: rule #2 uses undeclared role 'Contractor'
+tests/step4_errors.rf:14:1: error: rule #3 uses undeclared action 'delete'
+7 error(s), 0 warning(s)

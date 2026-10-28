@@ -1,0 +1,3 @@
+# Lexical error: @ is not allowed in a name
+role Manager;
+resource Salary@Records;

@@ -1,0 +1,25 @@
+Calling the compiled checkAccess for every combination:
+
+  Role           Resource           Action   Compiled answer    Expected           Check
+  Auditor        Report_Sales       read     ALLOW (rule 1)     ALLOW (rule 1)     OK
+  Auditor        Report_Sales       delete   DENY (no rule)     DENY (no rule)     OK
+  Auditor        Report_Finance     read     ALLOW (rule 1)     ALLOW (rule 1)     OK
+  Auditor        Report_Finance     delete   DENY (no rule)     DENY (no rule)     OK
+  Auditor        Server_Logs        read     DENY (no rule)     DENY (no rule)     OK
+  Auditor        Server_Logs        delete   DENY (no rule)     DENY (no rule)     OK
+  Admin          Report_Sales       read     ALLOW (rule 2)     ALLOW (rule 2)     OK
+  Admin          Report_Sales       delete   DENY (rule 4)      DENY (rule 4)      OK
+  Admin          Report_Finance     read     ALLOW (rule 2)     ALLOW (rule 2)     OK
+  Admin          Report_Finance     delete   DENY (rule 4)      DENY (rule 4)      OK
+  Admin          Server_Logs        read     ALLOW (rule 2)     ALLOW (rule 2)     OK
+  Admin          Server_Logs        delete   ALLOW (rule 3)     ALLOW (rule 3)     OK
+
+Out-of-range requests (must be denied):
+  checkAccess(-1, 0, 0) -> DENY (no rule)  OK
+  checkAccess(2, 0, 0) -> DENY (no rule)  OK
+  checkAccess(0, 3, 0) -> DENY (no rule)  OK
+  checkAccess(0, 0, 2) -> DENY (no rule)  OK
+  checkAccess(1000, 1000, 1000) -> DENY (no rule)  OK
+  checkAccess(-2147483648, 2147483647, -5) -> DENY (no rule)  OK
+
+RESULT: PASS - 12/12 combinations correct, 6/6 out-of-range requests denied

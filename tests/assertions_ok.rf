@@ -1,0 +1,20 @@
+# Security assertions that the compiler proves at compile time.
+role Employee;
+role Manager : Employee;
+role Intern : Employee;
+
+resource Salary_Records;
+resource Salary_History;
+resource Public_Notice;
+
+action read;
+action write;
+
+Allow Employee to read Public_Notice;
+Allow Manager to read Salary_*;
+Deny Intern to read Salary_*;
+
+assert Intern cannot read Salary_*;
+assert Manager can read Salary_History;
+assert every role can read Public_Notice;
+assert no role can write *;

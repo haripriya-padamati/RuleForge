@@ -1,0 +1,119 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Auditor
+2:13     SEMI       ;
+3:1      ROLE       role
+3:6      IDENT      Admin
+3:11     SEMI       ;
+5:1      RESOURCE   resource
+5:10     IDENT      Report_Sales
+5:22     SEMI       ;
+6:1      RESOURCE   resource
+6:10     IDENT      Report_Finance
+6:24     SEMI       ;
+7:1      RESOURCE   resource
+7:10     IDENT      Server_Logs
+7:21     SEMI       ;
+9:1      ACTION     action
+9:8      IDENT      read
+9:12     SEMI       ;
+10:1     ACTION     action
+10:8     IDENT      delete
+10:14    SEMI       ;
+12:1     ALLOW      Allow
+12:7     IDENT      Auditor
+12:15    TO         to
+12:18    IDENT      read
+12:23    IDENT      Report_
+12:30    STAR       *
+12:31    SEMI       ;
+13:1     ALLOW      Allow
+13:7     IDENT      Admin
+13:13    TO         to
+13:16    IDENT      read
+13:21    STAR       *
+13:22    SEMI       ;
+14:1     ALLOW      Allow
+14:7     IDENT      Admin
+14:13    TO         to
+14:16    IDENT      delete
+14:23    STAR       *
+14:24    SEMI       ;
+15:1     DENY       Deny
+15:6     IDENT      Admin
+15:12    TO         to
+15:15    IDENT      delete
+15:22    IDENT      Report_
+15:29    STAR       *
+15:30    SEMI       ;
+16:1     ALLOW      Allow
+16:7     IDENT      Auditor
+16:15    TO         to
+16:18    IDENT      read
+16:23    IDENT      Backup_
+16:30    STAR       *
+16:31    SEMI       ;
+17:1     EOF        <eof>
+Program (12 items)
+  RoleDecl     Auditor   (line 2)
+  RoleDecl     Admin   (line 3)
+  ResourceDecl Report_Sales   (line 5)
+  ResourceDecl Report_Finance   (line 6)
+  ResourceDecl Server_Logs   (line 7)
+  ActionDecl   read   (line 9)
+  ActionDecl   delete   (line 10)
+  AllowRule    #1: Auditor -> read on Report_*   (line 12)
+  AllowRule    #2: Admin -> read on *   (line 13)
+  AllowRule    #3: Admin -> delete on *   (line 14)
+  DenyRule     #4: Admin -> delete on Report_*   (line 15)
+  AllowRule    #5: Auditor -> read on Backup_*   (line 16)
+Symbol table
+  Roles (2)
+     0  Auditor                      ancestors: Auditor
+     1  Admin                        ancestors: Admin
+  Resources (3)
+     0  Report_Sales
+     1  Report_Finance
+     2  Server_Logs
+  Actions (2)
+     0  read
+     1  delete
+Resolved rules (5)
+  #1  ALLOW role=Auditor(0) action=read(0) resources=[Report_Sales(0), Report_Finance(1)]
+  #2  ALLOW role=Admin(1) action=read(0) resources=[Report_Sales(0), Report_Finance(1), Server_Logs(2)]
+  #3  ALLOW role=Admin(1) action=delete(1) resources=[Report_Sales(0), Report_Finance(1), Server_Logs(2)]
+  #4  DENY  role=Admin(1) action=delete(1) resources=[Report_Sales(0), Report_Finance(1)]
+  #5  ALLOW role=Auditor(0) action=read(0) resources=[]
+Conflicts
+  tests/wildcards.rf:15:1: direct conflict: (Admin, Report_Sales, delete)
+      Allow #3 (line 14) written for Admin
+      Deny  #4 (line 15) written for Admin
+  tests/wildcards.rf:15:1: direct conflict: (Admin, Report_Finance, delete)
+      Allow #3 (line 14) written for Admin
+      Deny  #4 (line 15) written for Admin
+  2 conflict(s): 2 direct, 0 hidden through inheritance
+  (Deny overrides Allow, so in each case above access is denied.)
+Suggested fixes (each one re-checked by the compiler)
+  Conflict group 1: Allow #3 vs Deny #4 on 'delete' for (Admin, Report_Sales), (Admin, Report_Finance)
+    Fix A - keep access denied (drop the part of the Allow that never takes effect):
+      change rule #3 (line 14) to:  Allow Admin to delete Server_Logs;
+      check: conflict removed, no access decision changes
+    Fix B - grant access (narrow the Deny):
+      delete rule #4 (line 15)
+      check: conflict removed, 2 access decision(s) change:
+        Admin delete Report_Sales: DENY #4 -> ALLOW #3
+        Admin delete Report_Finance: DENY #4 -> ALLOW #3
+Decision table (2 roles x 3 resources x 2 actions = 12 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role     Action  Report_Sales  Report_Finance  Server_Logs
+  Auditor  read    ALLOW #1      ALLOW #1        deny -
+           delete  deny -        deny -          deny -
+  Admin    read    ALLOW #2      ALLOW #2        ALLOW #2
+           delete  DENY #4       DENY #4         ALLOW #3
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/wildcards.ll
+--- stderr ---
+tests/wildcards.rf:16:1: warning: wildcard 'Backup_*' in rule #5 matches no declared resource, so the rule has no effect

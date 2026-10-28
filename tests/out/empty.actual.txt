@@ -1,0 +1,19 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+3:1      EOF        <eof>
+Program (0 items)
+Symbol table
+  Roles (0)
+  Resources (0)
+  Actions (0)
+Resolved rules (0)
+Conflicts
+  none: no combination has both an Allow and a Deny rule
+Decision table (0 roles x 0 resources x 0 actions = 0 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role  Action
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/empty.ll
+--- stderr ---

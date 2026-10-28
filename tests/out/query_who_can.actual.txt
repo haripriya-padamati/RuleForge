@@ -1,0 +1,73 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+3:1      ROLE       role
+3:6      IDENT      Employee
+3:14     SEMI       ;
+4:1      ROLE       role
+4:6      IDENT      Manager
+4:14     COLON      :
+4:16     IDENT      Employee
+4:24     SEMI       ;
+5:1      ROLE       role
+5:6      IDENT      HR_Manager
+5:17     COLON      :
+5:19     IDENT      Manager
+5:26     SEMI       ;
+6:1      ROLE       role
+6:6      IDENT      Intern
+6:12     SEMI       ;
+8:1      RESOURCE   resource
+8:10     IDENT      Salary_Records
+8:24     SEMI       ;
+10:1     ACTION     action
+10:8     IDENT      read
+10:12    SEMI       ;
+12:1     ALLOW      Allow
+12:7     IDENT      Manager
+12:15    TO         to
+12:18    IDENT      read
+12:23    IDENT      Salary_Records
+12:37    SEMI       ;
+13:1     DENY       Deny
+13:6     IDENT      Intern
+13:13    TO         to
+13:16    IDENT      read
+13:21    STAR       *
+13:22    SEMI       ;
+14:1     EOF        <eof>
+Program (8 items)
+  RoleDecl     Employee   (line 3)
+  RoleDecl     Manager : Employee   (line 4)
+  RoleDecl     HR_Manager : Manager   (line 5)
+  RoleDecl     Intern   (line 6)
+  ResourceDecl Salary_Records   (line 8)
+  ActionDecl   read   (line 10)
+  AllowRule    #1: Manager -> read on Salary_Records   (line 12)
+  DenyRule     #2: Intern -> read on *   (line 13)
+Symbol table
+  Roles (4)
+     0  Employee                     ancestors: Employee
+     1  Manager : Employee           ancestors: Manager, Employee
+     2  HR_Manager : Manager         ancestors: HR_Manager, Manager, Employee
+     3  Intern                       ancestors: Intern
+  Resources (1)
+     0  Salary_Records
+  Actions (1)
+     0  read
+Resolved rules (2)
+  #1  ALLOW role=Manager(1) action=read(0) resources=[Salary_Records(0)]
+  #2  DENY  role=Intern(3) action=read(0) resources=[Salary_Records(0)]
+Conflicts
+  none: no combination has both an Allow and a Deny rule
+Decision table (4 roles x 1 resources x 1 actions = 4 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role        Action  Salary_Records
+  Employee    read    deny -
+  Manager     read    ALLOW #1
+  HR_Manager  read    ALLOW #1
+  Intern      read    DENY #2
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/query_who_can.ll
+--- stderr ---

@@ -1,0 +1,14 @@
+exit code: 1
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Manager
+2:13     SEMI       ;
+3:1      RESOURCE   resource
+3:10     IDENT      Salary
+3:16     ERROR      unexpected character '@'
+3:17     IDENT      Records
+3:24     SEMI       ;
+4:1      EOF        <eof>
+--- stderr ---
+tests/lex_error.rf:3:16: lexical error: unexpected character '@'

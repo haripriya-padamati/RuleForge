@@ -1,0 +1,11 @@
+exit code: 1
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Manager
+3:1      RESOURCE   resource
+3:10     IDENT      Salary_Records
+3:24     SEMI       ;
+4:1      EOF        <eof>
+--- stderr ---
+tests/syntax_error.rf:3:1: syntax error: expected ';' after the role declaration, but found 'resource'

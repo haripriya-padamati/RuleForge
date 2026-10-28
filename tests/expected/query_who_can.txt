@@ -1,0 +1,9 @@
+exit code: 0
+--- stdout ---
+Who can read Salary_Records?
+  ALLOWED  Manager          by rule #1 (line 12), written for Manager
+  ALLOWED  HR_Manager       by rule #1 (line 12), inherited via HR_Manager -> Manager
+  DENIED   Employee         no rule applies (default deny)
+  DENIED   Intern           by rule #2 (line 13), written for Intern
+  2 of 4 role(s) allowed
+--- stderr ---

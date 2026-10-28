@@ -1,0 +1,79 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Employee
+2:14     SEMI       ;
+3:1      ROLE       role
+3:6      IDENT      Manager
+3:14     COLON      :
+3:16     IDENT      Employee
+3:24     SEMI       ;
+5:1      RESOURCE   resource
+5:10     IDENT      Salary_Records
+5:24     SEMI       ;
+6:1      RESOURCE   resource
+6:10     IDENT      Leave_Records
+6:23     SEMI       ;
+8:1      ACTION     action
+8:8      IDENT      read
+8:12     SEMI       ;
+9:1      ACTION     action
+9:8      IDENT      write
+9:13     SEMI       ;
+11:1     ALLOW      Allow
+11:7     IDENT      Employee
+11:16    TO         to
+11:19    IDENT      read
+11:24    IDENT      Leave_Records
+11:37    SEMI       ;
+12:1     ALLOW      Allow
+12:7     IDENT      Manager
+12:15    TO         to
+12:18    IDENT      read
+12:23    IDENT      Salary_Records
+12:37    SEMI       ;
+13:1     DENY       Deny
+13:6     IDENT      Employee
+13:15    TO         to
+13:18    IDENT      write
+13:24    IDENT      Salary_Records
+13:38    SEMI       ;
+14:1     EOF        <eof>
+Program (9 items)
+  RoleDecl     Employee   (line 2)
+  RoleDecl     Manager : Employee   (line 3)
+  ResourceDecl Salary_Records   (line 5)
+  ResourceDecl Leave_Records   (line 6)
+  ActionDecl   read   (line 8)
+  ActionDecl   write   (line 9)
+  AllowRule    #1: Employee -> read on Leave_Records   (line 11)
+  AllowRule    #2: Manager -> read on Salary_Records   (line 12)
+  DenyRule     #3: Employee -> write on Salary_Records   (line 13)
+Symbol table
+  Roles (2)
+     0  Employee                     ancestors: Employee
+     1  Manager : Employee           ancestors: Manager, Employee
+  Resources (2)
+     0  Salary_Records
+     1  Leave_Records
+  Actions (2)
+     0  read
+     1  write
+Resolved rules (3)
+  #1  ALLOW role=Employee(0) action=read(0) resources=[Leave_Records(1)]
+  #2  ALLOW role=Manager(1) action=read(0) resources=[Salary_Records(0)]
+  #3  DENY  role=Employee(0) action=write(1) resources=[Salary_Records(0)]
+Conflicts
+  none: no combination has both an Allow and a Deny rule
+Decision table (2 roles x 2 resources x 2 actions = 8 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role      Action  Salary_Records  Leave_Records
+  Employee  read    deny -          ALLOW #1
+            write   DENY #3         deny -
+  Manager   read    ALLOW #2        ALLOW #1
+            write   DENY #3         deny -
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/clean.ll
+--- stderr ---

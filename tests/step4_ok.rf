@@ -1,0 +1,18 @@
+# Step 4 check: valid program with inheritance and wildcards
+role Employee;
+role Manager : Employee;
+role HR_Manager : Manager;
+role Intern;
+
+resource Salary_Records;
+resource Salary_History;
+resource Leave_Records;
+
+action read;
+action write;
+
+Allow Employee to read Leave_Records;
+Permit Manager to read Salary_*;
+Deny Employee to write *;
+Grant HR_Manager to write Salary_Records;
+Allow Intern to read Payroll_*;   # matches nothing -> warning

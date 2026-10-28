@@ -1,0 +1,134 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Employee
+2:14     SEMI       ;
+3:1      ROLE       role
+3:6      IDENT      Manager
+3:14     COLON      :
+3:16     IDENT      Employee
+3:24     SEMI       ;
+4:1      ROLE       role
+4:6      IDENT      HR_Manager
+4:17     COLON      :
+4:19     IDENT      Manager
+4:26     SEMI       ;
+5:1      ROLE       role
+5:6      IDENT      Intern
+5:12     SEMI       ;
+7:1      RESOURCE   resource
+7:10     IDENT      Salary_Records
+7:24     SEMI       ;
+8:1      RESOURCE   resource
+8:10     IDENT      Salary_History
+8:24     SEMI       ;
+9:1      RESOURCE   resource
+9:10     IDENT      Leave_Records
+9:23     SEMI       ;
+11:1     ACTION     action
+11:8     IDENT      read
+11:12    SEMI       ;
+12:1     ACTION     action
+12:8     IDENT      write
+12:13    SEMI       ;
+14:1     ALLOW      Allow
+14:7     IDENT      Employee
+14:16    TO         to
+14:19    IDENT      read
+14:24    IDENT      Leave_Records
+14:37    SEMI       ;
+15:1     ALLOW      Permit
+15:8     IDENT      Manager
+15:16    TO         to
+15:19    IDENT      read
+15:24    IDENT      Salary_
+15:31    STAR       *
+15:32    SEMI       ;
+16:1     DENY       Deny
+16:6     IDENT      Employee
+16:15    TO         to
+16:18    IDENT      write
+16:24    STAR       *
+16:25    SEMI       ;
+17:1     ALLOW      Grant
+17:7     IDENT      HR_Manager
+17:18    TO         to
+17:21    IDENT      write
+17:27    IDENT      Salary_Records
+17:41    SEMI       ;
+18:1     ALLOW      Allow
+18:7     IDENT      Intern
+18:14    TO         to
+18:17    IDENT      read
+18:22    IDENT      Payroll_
+18:30    STAR       *
+18:31    SEMI       ;
+19:1     EOF        <eof>
+Program (14 items)
+  RoleDecl     Employee   (line 2)
+  RoleDecl     Manager : Employee   (line 3)
+  RoleDecl     HR_Manager : Manager   (line 4)
+  RoleDecl     Intern   (line 5)
+  ResourceDecl Salary_Records   (line 7)
+  ResourceDecl Salary_History   (line 8)
+  ResourceDecl Leave_Records   (line 9)
+  ActionDecl   read   (line 11)
+  ActionDecl   write   (line 12)
+  AllowRule    #1: Employee -> read on Leave_Records   (line 14)
+  AllowRule    #2: Manager -> read on Salary_*   (line 15)
+  DenyRule     #3: Employee -> write on *   (line 16)
+  AllowRule    #4: HR_Manager -> write on Salary_Records   (line 17)
+  AllowRule    #5: Intern -> read on Payroll_*   (line 18)
+Symbol table
+  Roles (4)
+     0  Employee                     ancestors: Employee
+     1  Manager : Employee           ancestors: Manager, Employee
+     2  HR_Manager : Manager         ancestors: HR_Manager, Manager, Employee
+     3  Intern                       ancestors: Intern
+  Resources (3)
+     0  Salary_Records
+     1  Salary_History
+     2  Leave_Records
+  Actions (2)
+     0  read
+     1  write
+Resolved rules (5)
+  #1  ALLOW role=Employee(0) action=read(0) resources=[Leave_Records(2)]
+  #2  ALLOW role=Manager(1) action=read(0) resources=[Salary_Records(0), Salary_History(1)]
+  #3  DENY  role=Employee(0) action=write(1) resources=[Salary_Records(0), Salary_History(1), Leave_Records(2)]
+  #4  ALLOW role=HR_Manager(2) action=write(1) resources=[Salary_Records(0)]
+  #5  ALLOW role=Intern(3) action=read(0) resources=[]
+Conflicts
+  tests/step4_ok.rf:17:1: hidden conflict: (HR_Manager, Salary_Records, write)
+      Allow #4 (line 17) written for HR_Manager
+      Deny  #3 (line 16) inherited from Employee
+  1 conflict(s): 0 direct, 1 hidden through inheritance
+  (Deny overrides Allow, so in each case above access is denied.)
+Suggested fixes (each one re-checked by the compiler)
+  Conflict group 1: Allow #4 vs Deny #3 on 'write' for (HR_Manager, Salary_Records)
+    Fix A - keep access denied (drop the part of the Allow that never takes effect):
+      delete rule #4 (line 17)
+      check: conflict removed, no access decision changes
+    Fix B - grant access (narrow the Deny):
+      replace rule #3 (line 16) with:
+        Deny Employee to write Salary_History;
+        Deny Employee to write Leave_Records;
+      check: conflict removed, 1 access decision(s) change:
+        HR_Manager write Salary_Records: DENY #3 -> ALLOW #4
+Decision table (4 roles x 3 resources x 2 actions = 24 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role        Action  Salary_Records  Salary_History  Leave_Records
+  Employee    read    deny -          deny -          ALLOW #1
+              write   DENY #3         DENY #3         DENY #3
+  Manager     read    ALLOW #2        ALLOW #2        ALLOW #1
+              write   DENY #3         DENY #3         DENY #3
+  HR_Manager  read    ALLOW #2        ALLOW #2        ALLOW #1
+              write   DENY #3         DENY #3         DENY #3
+  Intern      read    deny -          deny -          deny -
+              write   deny -          deny -          deny -
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/step4_ok.ll
+--- stderr ---
+tests/step4_ok.rf:18:1: warning: wildcard 'Payroll_*' in rule #5 matches no declared resource, so the rule has no effect

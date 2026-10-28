@@ -1,0 +1,9 @@
+# Direct conflict: the same role gets Allow and Deny for the same thing
+role Manager;
+
+resource Salary_Records;
+
+action read;
+
+Allow Manager to read Salary_Records;
+Deny Manager to read Salary_Records;

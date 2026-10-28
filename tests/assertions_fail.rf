@@ -1,0 +1,15 @@
+# A security assertion that is violated through inheritance.
+# Intern inherits "Allow Employee to write *", so Intern CAN write
+# Salary_Records - the compiler refuses to generate code.
+role Employee;
+role Intern : Employee;
+
+resource Salary_Records;
+resource Timesheets;
+
+action write;
+
+Allow Employee to write *;
+
+assert Intern cannot write Salary_*;
+assert Employee can write Timesheets;

@@ -1,0 +1,81 @@
+exit code: 1
+--- stdout ---
+LINE:COL KIND       TEXT
+4:1      ROLE       role
+4:6      IDENT      Employee
+4:14     SEMI       ;
+5:1      ROLE       role
+5:6      IDENT      Intern
+5:13     COLON      :
+5:15     IDENT      Employee
+5:23     SEMI       ;
+7:1      RESOURCE   resource
+7:10     IDENT      Salary_Records
+7:24     SEMI       ;
+8:1      RESOURCE   resource
+8:10     IDENT      Timesheets
+8:20     SEMI       ;
+10:1     ACTION     action
+10:8     IDENT      write
+10:13    SEMI       ;
+12:1     ALLOW      Allow
+12:7     IDENT      Employee
+12:16    TO         to
+12:19    IDENT      write
+12:25    STAR       *
+12:26    SEMI       ;
+14:1     ASSERT     assert
+14:8     IDENT      Intern
+14:15    CANNOT     cannot
+14:22    IDENT      write
+14:28    IDENT      Salary_
+14:35    STAR       *
+14:36    SEMI       ;
+15:1     ASSERT     assert
+15:8     IDENT      Employee
+15:17    CAN        can
+15:21    IDENT      write
+15:27    IDENT      Timesheets
+15:37    SEMI       ;
+16:1     EOF        <eof>
+Program (8 items)
+  RoleDecl     Employee   (line 4)
+  RoleDecl     Intern : Employee   (line 5)
+  ResourceDecl Salary_Records   (line 7)
+  ResourceDecl Timesheets   (line 8)
+  ActionDecl   write   (line 10)
+  AllowRule    #1: Employee -> write on *   (line 12)
+  Assertion    A1: Intern cannot write Salary_*   (line 14)
+  Assertion    A2: Employee can write Timesheets   (line 15)
+Symbol table
+  Roles (2)
+     0  Employee                     ancestors: Employee
+     1  Intern : Employee            ancestors: Intern, Employee
+  Resources (2)
+     0  Salary_Records
+     1  Timesheets
+  Actions (1)
+     0  write
+Resolved rules (1)
+  #1  ALLOW role=Employee(0) action=write(0) resources=[Salary_Records(0), Timesheets(1)]
+Assertions (2)
+  A1  Intern cannot write Salary_*  -> checks Intern x 1 resource(s)
+  A2  Employee can write Timesheets  -> checks Employee x 1 resource(s)
+Conflicts
+  none: no combination has both an Allow and a Deny rule
+Decision table (2 roles x 2 resources x 1 actions = 4 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role      Action  Salary_Records  Timesheets
+  Employee  write   ALLOW #1        ALLOW #1
+  Intern    write   ALLOW #1        ALLOW #1
+Security assertions (2)
+  FAILED  A1 (line 14): Intern cannot write Salary_*   [1 of 1 case(s) violate it]
+  PROVED  A2 (line 15): Employee can write Timesheets   [all 1 case(s) checked]
+  1 proved, 1 failed
+--- stderr ---
+tests/assertions_fail.rf:14:1: error: assertion A1 failed: Intern cannot write Salary_*
+  counterexample:
+    Intern write Salary_Records -> ALLOWED
+      decided by rule #1 (line 12): Allow Employee to write *;
+        inherited via Intern -> Employee
+1 assertion(s) failed - no code generated

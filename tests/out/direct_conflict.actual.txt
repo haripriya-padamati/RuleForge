@@ -1,0 +1,64 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+2:1      ROLE       role
+2:6      IDENT      Manager
+2:13     SEMI       ;
+4:1      RESOURCE   resource
+4:10     IDENT      Salary_Records
+4:24     SEMI       ;
+6:1      ACTION     action
+6:8      IDENT      read
+6:12     SEMI       ;
+8:1      ALLOW      Allow
+8:7      IDENT      Manager
+8:15     TO         to
+8:18     IDENT      read
+8:23     IDENT      Salary_Records
+8:37     SEMI       ;
+9:1      DENY       Deny
+9:6      IDENT      Manager
+9:14     TO         to
+9:17     IDENT      read
+9:22     IDENT      Salary_Records
+9:36     SEMI       ;
+10:1     EOF        <eof>
+Program (5 items)
+  RoleDecl     Manager   (line 2)
+  ResourceDecl Salary_Records   (line 4)
+  ActionDecl   read   (line 6)
+  AllowRule    #1: Manager -> read on Salary_Records   (line 8)
+  DenyRule     #2: Manager -> read on Salary_Records   (line 9)
+Symbol table
+  Roles (1)
+     0  Manager                      ancestors: Manager
+  Resources (1)
+     0  Salary_Records
+  Actions (1)
+     0  read
+Resolved rules (2)
+  #1  ALLOW role=Manager(0) action=read(0) resources=[Salary_Records(0)]
+  #2  DENY  role=Manager(0) action=read(0) resources=[Salary_Records(0)]
+Conflicts
+  tests/direct_conflict.rf:9:1: direct conflict: (Manager, Salary_Records, read)
+      Allow #1 (line 8) written for Manager
+      Deny  #2 (line 9) written for Manager
+  1 conflict(s): 1 direct, 0 hidden through inheritance
+  (Deny overrides Allow, so in each case above access is denied.)
+Suggested fixes (each one re-checked by the compiler)
+  Conflict group 1: Allow #1 vs Deny #2 on 'read' for (Manager, Salary_Records)
+    Fix A - keep access denied (drop the part of the Allow that never takes effect):
+      delete rule #1 (line 8)
+      check: conflict removed, no access decision changes
+    Fix B - grant access (narrow the Deny):
+      delete rule #2 (line 9)
+      check: conflict removed, 1 access decision(s) change:
+        Manager read Salary_Records: DENY #2 -> ALLOW #1
+Decision table (1 roles x 1 resources x 1 actions = 1 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role     Action  Salary_Records
+  Manager  read    DENY #2
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/direct_conflict.ll
+--- stderr ---

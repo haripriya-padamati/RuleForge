@@ -1,0 +1,87 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+3:1      ROLE       ROLE
+3:6      IDENT      Student
+3:13     SEMI       ;
+4:1      ROLE       Role
+4:6      IDENT      TA
+4:9      COLON      :
+4:11     IDENT      Student
+4:18     SEMI       ;
+6:1      RESOURCE   Resource
+6:10     IDENT      Grades
+6:16     SEMI       ;
+7:1      RESOURCE   resource
+7:10     IDENT      Notes
+7:15     SEMI       ;
+9:1      ACTION     action
+9:8      IDENT      view
+9:12     SEMI       ;
+10:1     ACTION     ACTION
+10:8     IDENT      edit
+10:12    SEMI       ;
+12:1     ALLOW      PERMIT
+12:8     IDENT      Student
+12:16    TO         to
+12:19    IDENT      view
+12:24    IDENT      Notes
+12:29    SEMI       ;
+13:1     ALLOW      grant
+13:7     IDENT      TA
+13:10    TO         to
+13:13    IDENT      edit
+13:18    IDENT      Grades
+13:24    SEMI       ;
+14:1     DENY       Forbid
+14:8     IDENT      Student
+14:16    TO         to
+14:19    IDENT      edit
+14:24    IDENT      Notes
+14:29    SEMI       ;
+15:1     DENY       BLOCK
+15:7     IDENT      TA
+15:10    TO         to
+15:13    IDENT      view
+15:18    IDENT      Grades
+15:24    SEMI       ;
+16:1     EOF        <eof>
+Program (10 items)
+  RoleDecl     Student   (line 3)
+  RoleDecl     TA : Student   (line 4)
+  ResourceDecl Grades   (line 6)
+  ResourceDecl Notes   (line 7)
+  ActionDecl   view   (line 9)
+  ActionDecl   edit   (line 10)
+  AllowRule    #1: Student -> view on Notes   (line 12)
+  AllowRule    #2: TA -> edit on Grades   (line 13)
+  DenyRule     #3: Student -> edit on Notes   (line 14)
+  DenyRule     #4: TA -> view on Grades   (line 15)
+Symbol table
+  Roles (2)
+     0  Student                      ancestors: Student
+     1  TA : Student                 ancestors: TA, Student
+  Resources (2)
+     0  Grades
+     1  Notes
+  Actions (2)
+     0  view
+     1  edit
+Resolved rules (4)
+  #1  ALLOW role=Student(0) action=view(0) resources=[Notes(1)]
+  #2  ALLOW role=TA(1) action=edit(1) resources=[Grades(0)]
+  #3  DENY  role=Student(0) action=edit(1) resources=[Notes(1)]
+  #4  DENY  role=TA(1) action=view(0) resources=[Grades(0)]
+Conflicts
+  none: no combination has both an Allow and a Deny rule
+Decision table (2 roles x 2 resources x 2 actions = 8 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role     Action  Grades     Notes
+  Student  view    deny -     ALLOW #1
+           edit    deny -     DENY #3
+  TA       view    DENY #4    ALLOW #1
+           edit    ALLOW #2   DENY #3
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/synonyms.ll
+--- stderr ---

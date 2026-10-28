@@ -1,0 +1,85 @@
+exit code: 0
+--- stdout ---
+LINE:COL KIND       TEXT
+3:1      ROLE       role
+3:6      IDENT      Employee
+3:14     SEMI       ;
+4:1      ROLE       role
+4:6      IDENT      Manager
+4:14     COLON      :
+4:16     IDENT      Employee
+4:24     SEMI       ;
+5:1      ROLE       role
+5:6      IDENT      HR_Manager
+5:17     COLON      :
+5:19     IDENT      Manager
+5:26     SEMI       ;
+7:1      RESOURCE   resource
+7:10     IDENT      Salary_Records
+7:24     SEMI       ;
+8:1      RESOURCE   resource
+8:10     IDENT      Leave_Records
+8:23     SEMI       ;
+10:1     ACTION     action
+10:8     IDENT      write
+10:13    SEMI       ;
+12:1     DENY       Deny
+12:6     IDENT      Employee
+12:15    TO         to
+12:18    IDENT      write
+12:24    STAR       *
+12:25    SEMI       ;
+13:1     ALLOW      Allow
+13:7     IDENT      HR_Manager
+13:18    TO         to
+13:21    IDENT      write
+13:27    IDENT      Salary_Records
+13:41    SEMI       ;
+14:1     EOF        <eof>
+Program (8 items)
+  RoleDecl     Employee   (line 3)
+  RoleDecl     Manager : Employee   (line 4)
+  RoleDecl     HR_Manager : Manager   (line 5)
+  ResourceDecl Salary_Records   (line 7)
+  ResourceDecl Leave_Records   (line 8)
+  ActionDecl   write   (line 10)
+  DenyRule     #1: Employee -> write on *   (line 12)
+  AllowRule    #2: HR_Manager -> write on Salary_Records   (line 13)
+Symbol table
+  Roles (3)
+     0  Employee                     ancestors: Employee
+     1  Manager : Employee           ancestors: Manager, Employee
+     2  HR_Manager : Manager         ancestors: HR_Manager, Manager, Employee
+  Resources (2)
+     0  Salary_Records
+     1  Leave_Records
+  Actions (1)
+     0  write
+Resolved rules (2)
+  #1  DENY  role=Employee(0) action=write(0) resources=[Salary_Records(0), Leave_Records(1)]
+  #2  ALLOW role=HR_Manager(2) action=write(0) resources=[Salary_Records(0)]
+Conflicts
+  tests/query_explain.rf:13:1: hidden conflict: (HR_Manager, Salary_Records, write)
+      Allow #2 (line 13) written for HR_Manager
+      Deny  #1 (line 12) inherited from Employee
+  1 conflict(s): 0 direct, 1 hidden through inheritance
+  (Deny overrides Allow, so in each case above access is denied.)
+Suggested fixes (each one re-checked by the compiler)
+  Conflict group 1: Allow #2 vs Deny #1 on 'write' for (HR_Manager, Salary_Records)
+    Fix A - keep access denied (drop the part of the Allow that never takes effect):
+      delete rule #2 (line 13)
+      check: conflict removed, no access decision changes
+    Fix B - grant access (narrow the Deny):
+      change rule #1 (line 12) to:  Deny Employee to write Leave_Records;
+      check: conflict removed, 1 access decision(s) change:
+        HR_Manager write Salary_Records: DENY #1 -> ALLOW #2
+Decision table (3 roles x 2 resources x 1 actions = 6 entries)
+  ALLOW #n / DENY #n = decided by rule n,  deny - = no rule applies
+  Role        Action  Salary_Records  Leave_Records
+  Employee    write   DENY #1         DENY #1
+  Manager     write   DENY #1         DENY #1
+  HR_Manager  write   DENY #1         DENY #1
+Security assertions (0)
+  none in this file
+LLVM IR written to tests/out/query_explain.ll
+--- stderr ---

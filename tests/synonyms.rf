@@ -1,0 +1,15 @@
+# Synonyms and case: PERMIT/grant = allow, Forbid/BLOCK = deny.
+# Keywords are case-insensitive; names are case-sensitive.
+ROLE Student;
+Role TA : Student;
+
+Resource Grades;
+resource Notes;
+
+action view;
+ACTION edit;
+
+PERMIT Student to view Notes;
+grant TA to edit Grades;
+Forbid Student to edit Notes;
+BLOCK TA to view Grades;

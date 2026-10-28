@@ -1,0 +1,14 @@
+# Step 4 check: every kind of semantic error
+role Employee;
+role Manager : Employe;          # parent typo
+role Employee;                   # duplicate role
+role A : B;
+role B : A;                      # inheritance cycle
+
+resource Salary_Records;
+action read;
+action read;                     # duplicate action
+
+Allow Manager to read Salry_Records;   # resource typo
+Deny Contractor to read Salary_Records; # undeclared role
+Allow Employee to delete Salary_Records; # undeclared action

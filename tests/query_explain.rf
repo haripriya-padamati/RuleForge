@@ -1,0 +1,13 @@
+# args: --explain HR_Manager write Salary_Records
+# Explain mode: why is HR_Manager denied, even though rule #4 allows it?
+role Employee;
+role Manager : Employee;
+role HR_Manager : Manager;
+
+resource Salary_Records;
+resource Leave_Records;
+
+action write;
+
+Deny Employee to write *;
+Allow HR_Manager to write Salary_Records;

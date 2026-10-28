@@ -1,0 +1,13 @@
+# args: --who-can read Salary_Records
+# Who-can query: every role, its answer and the reason.
+role Employee;
+role Manager : Employee;
+role HR_Manager : Manager;
+role Intern;
+
+resource Salary_Records;
+
+action read;
+
+Allow Manager to read Salary_Records;
+Deny Intern to read *;

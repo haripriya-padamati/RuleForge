@@ -1,0 +1,8 @@
+exit code: 0
+--- stdout ---
+HR_Manager write Salary_Records -> DENIED
+  decided by rule #1 (line 12): Deny Employee to write *;
+    inherited via HR_Manager -> Manager -> Employee
+  overridden (deny overrides allow): rule #2 (line 13): Allow HR_Manager to write Salary_Records;
+    written for HR_Manager
+--- stderr ---

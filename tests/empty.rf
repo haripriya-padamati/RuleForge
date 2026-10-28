@@ -1,0 +1,2 @@
+# Edge case: a file with no declarations and no rules.
+# Every request must be denied.
